@@ -1,5 +1,6 @@
 const { AttachmentLayoutTypes, ActivityTypes, CardFactory } = require('botbuilder');
 const { ChoicePrompt, DialogSet, DialogTurnStatus, ListStyle } = require('botbuilder-dialogs');
+const FlickrAddon = require('./flickr');
 
 /**
  * RichCardsBot prompts a user to select a Rich Card and then returns the card
@@ -58,17 +59,23 @@ class MyBot {
 
             const results = await dc.continueDialog();
             if (!turnContext.responded && results.status === DialogTurnStatus.empty) {
-                await turnContext.sendActivity('Welcome to the Rich Cards Bot!');
+                await turnContext.sendActivity('Welcome to LeO Sample Bot, Please wait...');
                 // Create the PromptOptions which contain the prompt and re-prompt messages.
                 // PromptOptions also contains the list of choices available to the user.
-                const promptOptions = {
-                    prompt: 'Please select a card:',
-                    retryPrompt: 'That was not a valid choice, please select a card or number from 1 to 8.',
-                    choices: this.getChoices()
-                };
+                // const promptOptions = {
+                //     prompt: 'Please select a card:',
+                //     retryPrompt: 'That was not a valid choice, please select a card or number from 1 to 8.',
+                //     choices: this.getChoices()
+                // };
 
-                // Prompt the user with the configured PromptOptions.
-                await dc.prompt('cardPrompt', promptOptions);
+                // // Prompt the user with the configured PromptOptions.
+                // await dc.prompt('cardPrompt', promptOptions);
+                
+                var newFlickrCards = await this.createRandomFlickrCards();
+                await turnContext.sendActivity({ 
+                    attachments: newFlickrCards, 
+                    attachmentLayout: AttachmentLayoutTypes.Carousel 
+                });
 
             // The bot parsed a valid response from user's prompt response and so it must respond.
             } else if (results.status === DialogTurnStatus.complete) {
@@ -109,21 +116,16 @@ class MyBot {
             await turnContext.sendActivity({ attachments: [this.createVideoCard()] });
             break;
         case 'All Cards':
-            await turnContext.sendActivity({
-                attachments: [this.createVideoCard(),
-                    this.createAnimationCard(),
-                    this.createAudioCard(),
-                    this.createHeroCard(),
-                    this.createReceiptCard(),
-                    this.createSignInCard(),
-                    this.createThumbnailCard(),
-                    this.createVideoCard()
-                ],
-                attachmentLayout: AttachmentLayoutTypes.Carousel
+            var newFlickrCards = await this.createRandomFlickrCards();
+            await turnContext.sendActivity({ 
+                attachments: newFlickrCards, 
+                attachmentLayout: AttachmentLayoutTypes.Carousel 
             });
+
             break;
         default:
             await turnContext.sendActivity('An invalid selection was parsed. No corresponding Rich Cards were found.');
+            break;
         }
     }
 
@@ -172,6 +174,35 @@ class MyBot {
     // ======================================
     // Helper functions used to create cards.
     // ======================================
+
+    async createRandomFlickrCards() {
+        var fiveNewImageCards = [];
+        var fiveNewPhotos = await FlickrAddon.flickrGetRandomImages();
+
+        //console.log("NEW PHOTOS: " + JSON.stringify(fiveNewPhotos, null, 2));      
+
+        fiveNewPhotos.map(function(fiveNewPhotosElement) {
+            fiveNewImageCards.push(
+                CardFactory.heroCard(
+                    fiveNewPhotosElement.photo_info.author_name,
+                    CardFactory.images([ fiveNewPhotosElement.base_url ]),
+                    CardFactory.actions([
+                        {
+                            type: 'openUrl',
+                            title: 'Description',
+                            value: fiveNewPhotosElement.base_url
+                        }
+                    ],               
+                    {
+                        subtitle: fiveNewPhotosElement.photo_info.title,
+                        text: fiveNewPhotosElement.photo_info.author_name
+                    })
+                )
+            );
+        });
+
+        return fiveNewImageCards;
+    }
 
     createAnimationCard() {
         return CardFactory.animationCard(
