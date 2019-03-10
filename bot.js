@@ -1,6 +1,8 @@
 const { AttachmentLayoutTypes, ActivityTypes, CardFactory } = require('botbuilder');
 const { ChoicePrompt, WaterfallDialog, DialogSet, DialogTurnStatus, ListStyle } = require('botbuilder-dialogs');
-const FlickrAddon = require('./flickr');
+const { FlickrAddon } = require('./flickr');
+
+const flickrAddon = new FlickrAddon();
 
 class MyBot {
     constructor(conversationState, userState) {
@@ -100,7 +102,7 @@ class MyBot {
 
     async createRandomFlickrCards() {
         var fiveNewImageCards = [];
-        var fiveNewPhotos = await FlickrAddon.flickrGetRandomImages();
+        var fiveNewPhotos = await flickrAddon.flickrGetRandomImages();
 
         //console.log("NEW PHOTOS: " + JSON.stringify(fiveNewPhotos, null, 2));      
 
