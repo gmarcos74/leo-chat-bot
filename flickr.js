@@ -56,8 +56,8 @@ function FlickrAddon() {
             var temp_photo_info = JSON.parse(photo_details_struct.text);
 
             //Title is an odd object, just get first key which should be _content
-            photo_info.title = temp_photo_info.photo.title ? Object.keys(temp_photo_info.photo.title)[0] : 'No title';
-            photo_info.description = temp_photo_info.photo.description ? Object.keys(temp_photo_info.photo.description)[0] : 'No description';
+            photo_info.title = temp_photo_info.photo.title ? temp_photo_info.photo.title[Object.keys(temp_photo_info.photo.title)[0]] : 'No title';
+            photo_info.description = temp_photo_info.photo.description ? temp_photo_info.photo.description[Object.keys(temp_photo_info.photo.description)[0]] : 'No description';
             photo_info.author_name = (temp_photo_info.photo.owner && temp_photo_info.photo.owner.realname) ? temp_photo_info.photo.owner.realname : 'Unknown Author';
             photo_info.date_taken = (temp_photo_info.photo.dates && temp_photo_info.photo.dates.taken) ? temp_photo_info.photo.dates.taken : 'Unknown date taken';
         }

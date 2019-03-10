@@ -107,7 +107,7 @@ class MyBot {
         fiveNewPhotos.map(function(fiveNewPhotosElement) {
             fiveNewImageCards.push(
                 CardFactory.heroCard(
-                    fiveNewPhotosElement.photo_info.author_name,
+                    fiveNewPhotosElement.photo_info.title,
                     CardFactory.images([ fiveNewPhotosElement.base_url ]),
                     CardFactory.actions([
                         {
@@ -118,10 +118,10 @@ class MyBot {
                     ],               
                     {
                         subtitle: fiveNewPhotosElement.photo_info.title,
-                        text: fiveNewPhotosElement.photo_info.author_name
+                        text: fiveNewPhotosElement.photo_info.title
                     },
                     {
-                        subtitle: fiveNewPhotosElement.photo_info.title,
+                        subtitle: fiveNewPhotosElement.photo_info.author_name,
                         text: fiveNewPhotosElement.photo_info.author_name
                     })
                 )
