@@ -60,6 +60,7 @@ class FlickrAddon {
             photo_info.description = temp_photo_info.photo.description ? temp_photo_info.photo.description[Object.keys(temp_photo_info.photo.description)[0]] : 'No description';
             photo_info.author_name = (temp_photo_info.photo.owner && temp_photo_info.photo.owner.realname) ? temp_photo_info.photo.owner.realname : 'Unknown Author';
             photo_info.date_taken = (temp_photo_info.photo.dates && temp_photo_info.photo.dates.taken) ? temp_photo_info.photo.dates.taken : 'Unknown date taken';
+            photo_info.owner_id = temp_photo_info.photo.owner.nsid;
         }
 
         return photo_info;
@@ -71,6 +72,35 @@ class FlickrAddon {
         var results = {};
         try {
             results = await flickr.photos.getRecent({ per_page: 5, page: 1 });
+        } catch (err) {
+            return [];
+        }
+
+        if (results && results.text) {
+            var jsonResults = JSON.parse(results.text);
+            var photoResults = [];
+
+            if (jsonResults.photos && jsonResults.photos.photo && jsonResults.photos.photo.length) {
+                //I need sync results, so DO NOT use map
+                for (var photoElementIndex in jsonResults.photos.photo) {
+                    var photoElement = jsonResults.photos.photo[photoElementIndex];
+
+                    photoElement.base_url = this.flickrConstructURL(photoElement);
+                    photoElement.photo_info = await this.flickrPhotoInfo(photoElement);
+                    photoResults.push(photoElement);
+                }
+            }
+
+            return photoResults;
+        }
+
+        return [];
+    }
+
+    async flickrGetImagesByAuthor(owner_id, startList) {
+        var results = {};
+        try {
+            results = await flickr.photos.search({ user_id: owner_id, per_page: 5, page: startList });
         } catch (err) {
             return [];
         }
